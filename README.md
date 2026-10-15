@@ -5,7 +5,7 @@ A multi-modal journey planner for Tunis: search a departure and destination and 
 ## Stack
 
 - **Backend**: Java 25, Spring Boot, PostgreSQL + PostGIS, Flyway, hexagonal architecture.
-- **Frontend**: Angular (latest, standalone), PrimeNG, MapLibre GL + OpenStreetMap.
+- **Frontend**: Angular (latest, standalone), Angular Material, MapLibre GL + OpenStreetMap.
 - **Data**: TRANSTU GTFS feed (bus, metro léger, TGM) — see [catalogue-data.transport.tn](https://catalogue-data.transport.tn/dataset/horaires-des-voyages-de-la-transtu-gtfs).
 - **Routing**: custom RAPTOR-based itinerary engine (`backend/.../domain/routing`).
 
@@ -23,6 +23,8 @@ transport-view/
 ```
 Brainstorm → Plan (GitHub issue) → Dev (TDD, feature branch) → Self-review → PR → QA → Merge to develop → Release (develop → main)
 ```
+
+See [RELEASING.md](RELEASING.md) for how `develop` → `main` releases and versioning work.
 
 - Branches: `feat/<issue-id>-slug`, `fix/<issue-id>-slug`, always off `develop`.
 - `develop` is the integration branch; `main` only receives tagged releases from `develop`.
