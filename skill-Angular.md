@@ -126,7 +126,7 @@ Séparez rigoureusement les responsabilités des composants pour optimiser la r�
 - **Styles encapsulés (Scoped) :** Les styles doivent être encapsulés au niveau de leur composant (comportement par défaut) et rédigés dans un fichier `.scss` co-localisé.
 - **Tokens du Design System :** N'utilisez aucune valeur magique (couleurs en dur, pixels pour les marges). Utilisez exclusivement les variables CSS globales ou de thème fournies par le design system (variables `--ds-*`).
 - **Convention de nommage CSS :** Utilisez la convention BEM (`block__element--modifier`) même avec l'encapsulation, afin d'assurer la lisibilité et l'organisation sémantique du template HTML.
-  please use also primeng as css framework
+- **Bibliothèque de composants :** Utilisez **Angular Material** (`@angular/material` + `@angular/cdk`) comme design system de composants. (PrimeNG a été écarté : depuis la v22, PrimeTek l'a fermé en commercial — licence requise, sinon bandeau d'avertissement affiché en production.)
 
 ### 2.4. Ordre des Imports
 Respectez l'ordre suivant dans les fichiers TypeScript pour faciliter la relecture :
