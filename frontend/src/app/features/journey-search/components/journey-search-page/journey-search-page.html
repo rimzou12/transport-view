@@ -7,6 +7,7 @@
         [formControl]="originControl"
         [matAutocomplete]="originAuto"
         placeholder="Search a stop"
+        (focus)="browseOriginOnFocus()"
         (blur)="resolveOriginOnBlur()"
       />
       <mat-autocomplete #originAuto="matAutocomplete" (optionSelected)="selectOrigin($event)">
@@ -26,6 +27,7 @@
         [formControl]="destinationControl"
         [matAutocomplete]="destinationAuto"
         placeholder="Search a stop"
+        (focus)="browseDestinationOnFocus()"
         (blur)="resolveDestinationOnBlur()"
       />
       <mat-autocomplete #destinationAuto="matAutocomplete" (optionSelected)="selectDestination($event)">

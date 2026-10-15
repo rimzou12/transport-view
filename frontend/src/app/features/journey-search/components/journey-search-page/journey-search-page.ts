@@ -6,7 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { debounceTime, distinctUntilChanged, switchMap, of } from 'rxjs';
+import { debounceTime, distinctUntilChanged, map, merge, of, Subject, switchMap } from 'rxjs';
 import { JourneyMap } from '@/features/journey-search/components/journey-map/journey-map';
 import { ItineraryList } from '@/features/journey-search/components/itinerary-list/itinerary-list';
 import { JourneySearchService } from '@/features/journey-search/services/journey-search.service';
@@ -41,10 +41,17 @@ export class JourneySearchPage {
   protected readonly destinationControl = new FormControl('', { nonNullable: true });
   protected readonly departureTimeControl = new FormControl('', { nonNullable: true });
 
-  protected readonly originSuggestions = toSignal(this.suggestionsFor(this.originControl), { initialValue: [] });
-  protected readonly destinationSuggestions = toSignal(this.suggestionsFor(this.destinationControl), {
-    initialValue: [],
-  });
+  private readonly originBrowseTrigger = new Subject<void>();
+  private readonly destinationBrowseTrigger = new Subject<void>();
+
+  protected readonly originSuggestions = toSignal(
+    this.suggestionsFor(this.originControl, this.originBrowseTrigger),
+    { initialValue: [] },
+  );
+  protected readonly destinationSuggestions = toSignal(
+    this.suggestionsFor(this.destinationControl, this.destinationBrowseTrigger),
+    { initialValue: [] },
+  );
 
   protected readonly selectedOrigin = signal<Stop | null>(null);
   protected readonly selectedDestination = signal<Stop | null>(null);
@@ -54,6 +61,19 @@ export class JourneySearchPage {
   protected readonly loading = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly searched = signal(false);
+
+  /**
+   * Shows the full stop list on focus, before the user types anything — so they can see what's
+   * actually available (this dataset only covers metro + TGM, see #7) instead of guessing a
+   * name that doesn't exist, which previously produced an empty dropdown with no explanation.
+   */
+  protected browseOriginOnFocus(): void {
+    this.originBrowseTrigger.next();
+  }
+
+  protected browseDestinationOnFocus(): void {
+    this.destinationBrowseTrigger.next();
+  }
 
   protected selectOrigin(event: MatAutocompleteSelectedEvent): void {
     this.selectedOrigin.set(this.findSuggestion(this.originSuggestions(), event.option.value));
@@ -129,11 +149,12 @@ export class JourneySearchPage {
       });
   }
 
-  private suggestionsFor(control: FormControl<string>) {
-    return control.valueChanges.pipe(
-      debounceTime(SEARCH_DEBOUNCE_MS),
-      distinctUntilChanged(),
-      switchMap((query) => (query.length >= MIN_QUERY_LENGTH ? this.stopSearchService.search(query) : of([]))),
+  private suggestionsFor(control: FormControl<string>, browseTrigger: Subject<void>) {
+    const typedQueries = control.valueChanges.pipe(debounceTime(SEARCH_DEBOUNCE_MS), distinctUntilChanged());
+    const browseRequests = browseTrigger.pipe(map(() => control.value));
+
+    return merge(typedQueries, browseRequests).pipe(
+      switchMap((query) => (query.length === 0 || query.length >= MIN_QUERY_LENGTH ? this.stopSearchService.search(query) : of([]))),
     );
   }
 }
