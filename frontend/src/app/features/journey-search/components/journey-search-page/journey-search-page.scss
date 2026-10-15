@@ -1,0 +1,29 @@
+.journey-search {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+
+  @media (min-width: 900px) {
+    grid-template-columns: minmax(320px, 420px) 1fr;
+    grid-template-areas:
+      'form map'
+      'results map';
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    grid-area: form;
+  }
+
+  &__results {
+    grid-area: results;
+    overflow-y: auto;
+  }
+
+  &__map {
+    grid-area: map;
+    min-height: 320px;
+  }
+}

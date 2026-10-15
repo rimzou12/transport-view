@@ -7,7 +7,11 @@ public record ItineraryResponse(List<LegResponse> legs, long totalDurationSecond
     public record LegResponse(
             String mode,
             String fromStopName,
+            double fromStopLatitude,
+            double fromStopLongitude,
             String toStopName,
+            double toStopLatitude,
+            double toStopLongitude,
             String departure,
             String arrival,
             String routeShortName) {

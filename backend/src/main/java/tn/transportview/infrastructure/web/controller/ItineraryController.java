@@ -78,7 +78,11 @@ public class ItineraryController {
                 .map(leg -> new ItineraryResponse.LegResponse(
                         leg.mode().name(),
                         leg.fromStop().name(),
+                        leg.fromStop().coordinates().latitude(),
+                        leg.fromStop().coordinates().longitude(),
                         leg.toStop().name(),
+                        leg.toStop().coordinates().latitude(),
+                        leg.toStop().coordinates().longitude(),
                         leg.departure().toString(),
                         leg.arrival().toString(),
                         leg.routeShortName()))

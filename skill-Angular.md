@@ -355,7 +355,7 @@ Une fonctionnalité n'est considérée comme achevée que lorsqu'elle dispose d'
 - **Framework :** **Playwright** (`playwright.config.ts`).
 - **Localisation des fichiers :** Dossier `/e2e` à la racine du projet.
 - **URL de Base :** `http://localhost:4200` (port de développement par défaut d'Angular).
-- **Navigateurs de validation :** Chromium, Firefox, WebKit (Safari).
+- **Navigateurs de validation :** Chromium, WebKit (Safari). (Firefox exclu : WebGL non supporté en mode headless — bloquant depuis que l'app par défaut rend une carte MapLibre GL, voir #12.)
 - **Cycle d'exécution :** Playwright démarre et éteint automatiquement le serveur de développement local (`ng serve`) à chaque passage de test complet.
 - **Commandes d'exécution :**
   - Lancement des tests E2E : `pnpm test:e2e`

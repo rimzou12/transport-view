@@ -1,6 +1,7 @@
 package tn.transportview.infrastructure.persistence.repository;
 
 import java.util.List;
+import org.springframework.data.domain.Limit;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,4 +14,6 @@ public interface StopJpaRepository extends JpaRepository<StopEntity, String> {
             WHERE ST_DWithin(location, ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)::geography, :radiusMeters)
             """, nativeQuery = true)
     List<StopEntity> findWithinRadius(@Param("lat") double lat, @Param("lon") double lon, @Param("radiusMeters") double radiusMeters);
+
+    List<StopEntity> findByNameContainingIgnoreCase(String query, Limit limit);
 }
