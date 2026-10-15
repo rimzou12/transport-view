@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -64,7 +65,10 @@ public class ItineraryController {
 
     private LocalTime parseDepartureTime(String rawDepartureTime) {
         if (rawDepartureTime == null) {
-            return LocalTime.now();
+            // Truncate to seconds: GTFS times and our response formatting are minute/second
+            // granular, and LocalTime.now()'s sub-second precision leaks into leg timestamps
+            // (e.g. a taxi-fallback leg) otherwise, showing nanoseconds to the user.
+            return LocalTime.now().truncatedTo(ChronoUnit.SECONDS);
         }
         try {
             return LocalTime.parse(rawDepartureTime);

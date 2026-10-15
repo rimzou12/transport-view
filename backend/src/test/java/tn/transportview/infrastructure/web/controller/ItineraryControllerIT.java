@@ -58,6 +58,24 @@ class ItineraryControllerIT {
     }
 
     @Test
+    void defaultsToNowWithoutSubSecondPrecisionWhenDepartureTimeIsOmitted() throws Exception {
+        // No stop fixture nearby these coordinates, so this reliably falls back to a taxi leg
+        // regardless of time of day, exercising the LocalTime.now() default path.
+        mockMvc.perform(post("/api/v1/itineraries")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "originLatitude": 36.75,
+                                  "originLongitude": 10.05,
+                                  "destinationLatitude": 36.76,
+                                  "destinationLongitude": 10.06
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].legs[0].departure", org.hamcrest.Matchers.matchesPattern("\\d{2}:\\d{2}(:\\d{2})?")));
+    }
+
+    @Test
     void rejectsAMalformedDepartureTime() throws Exception {
         mockMvc.perform(post("/api/v1/itineraries")
                         .contentType(MediaType.APPLICATION_JSON)
