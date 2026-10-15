@@ -1,17 +1,14 @@
 name: frontend-ci
 
+# Deliberately no `paths:` filter: build-test-lint and e2e are required by branch protection
+# (see RELEASING.md). A path-filtered required check that never runs for a given PR leaves
+# GitHub waiting on it forever, permanently blocking merge — so it must run on every PR
+# regardless of which files changed.
 on:
   pull_request:
     branches: [develop, main]
-    paths:
-      - 'frontend/**'
-      - 'backend/**'
-      - '.github/workflows/frontend-ci.yml'
   push:
     branches: [develop, main]
-    paths:
-      - 'frontend/**'
-      - 'backend/**'
 
 jobs:
   build-test-lint:
