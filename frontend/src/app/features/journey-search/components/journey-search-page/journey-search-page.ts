@@ -63,8 +63,32 @@ export class JourneySearchPage {
     this.selectedDestination.set(this.findSuggestion(this.destinationSuggestions(), event.option.value));
   }
 
+  /**
+   * Autocomplete only registers a selection via an explicit option click/Enter. If the user
+   * types an exact stop name and then tabs or clicks away without that explicit selection, the
+   * field looks filled but nothing was actually chosen — this resolves that case on blur, and
+   * clears any stale selection that no longer matches the typed text (see #16).
+   */
+  protected resolveOriginOnBlur(): void {
+    this.selectedOrigin.set(this.resolveExactMatch(this.originControl, this.originSuggestions(), this.selectedOrigin()));
+  }
+
+  protected resolveDestinationOnBlur(): void {
+    this.selectedDestination.set(
+      this.resolveExactMatch(this.destinationControl, this.destinationSuggestions(), this.selectedDestination()),
+    );
+  }
+
+  private resolveExactMatch(control: FormControl<string>, suggestions: readonly Stop[], current: Stop | null): Stop | null {
+    if (current?.name === control.value) {
+      return current;
+    }
+    return this.findSuggestion(suggestions, control.value);
+  }
+
   private findSuggestion(suggestions: readonly Stop[], name: string): Stop | null {
-    return suggestions.find((stop) => stop.name === name) ?? null;
+    const normalized = name.trim().toLowerCase();
+    return suggestions.find((stop) => stop.name.toLowerCase() === normalized) ?? null;
   }
 
   protected onSubmit(event: SubmitEvent): void {

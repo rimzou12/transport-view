@@ -2,22 +2,40 @@
   <form class="journey-search__form" (submit)="onSubmit($event)">
     <mat-form-field appearance="outline">
       <mat-label>From</mat-label>
-      <input matInput [formControl]="originControl" [matAutocomplete]="originAuto" placeholder="Search a stop" />
+      <input
+        matInput
+        [formControl]="originControl"
+        [matAutocomplete]="originAuto"
+        placeholder="Search a stop"
+        (blur)="resolveOriginOnBlur()"
+      />
       <mat-autocomplete #originAuto="matAutocomplete" (optionSelected)="selectOrigin($event)">
         @for (stop of originSuggestions(); track stop.id) {
           <mat-option [value]="stop.name">{{ stop.name }}</mat-option>
         }
       </mat-autocomplete>
+      @if (originControl.value && !selectedOrigin()) {
+        <mat-hint>Select a stop from the list</mat-hint>
+      }
     </mat-form-field>
 
     <mat-form-field appearance="outline">
       <mat-label>To</mat-label>
-      <input matInput [formControl]="destinationControl" [matAutocomplete]="destinationAuto" placeholder="Search a stop" />
+      <input
+        matInput
+        [formControl]="destinationControl"
+        [matAutocomplete]="destinationAuto"
+        placeholder="Search a stop"
+        (blur)="resolveDestinationOnBlur()"
+      />
       <mat-autocomplete #destinationAuto="matAutocomplete" (optionSelected)="selectDestination($event)">
         @for (stop of destinationSuggestions(); track stop.id) {
           <mat-option [value]="stop.name">{{ stop.name }}</mat-option>
         }
       </mat-autocomplete>
+      @if (destinationControl.value && !selectedDestination()) {
+        <mat-hint>Select a stop from the list</mat-hint>
+      }
     </mat-form-field>
 
     <mat-form-field appearance="outline">

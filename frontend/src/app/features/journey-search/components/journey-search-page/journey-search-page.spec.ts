@@ -106,6 +106,17 @@ describe('JourneySearchPage search flow', () => {
   });
 });
 
+async function typeAndBlurOrigin(fixture: ReturnType<typeof TestBed.createComponent>, text: string) {
+  fixture.detectChanges();
+  const input = (fixture.nativeElement as HTMLElement).querySelector('input[placeholder="Search a stop"]') as HTMLInputElement;
+  input.value = text;
+  input.dispatchEvent(new Event('input'));
+  await new Promise((resolve) => setTimeout(resolve, 350));
+  await fixture.whenStable();
+  input.dispatchEvent(new Event('blur'));
+  await fixture.whenStable();
+}
+
 describe('JourneySearchPage autocomplete', () => {
   afterEach(() => jest.useRealTimers());
 
@@ -149,5 +160,24 @@ describe('JourneySearchPage autocomplete', () => {
     await fixture.whenStable();
 
     expect(stopSearchService.search).not.toHaveBeenCalled();
+  });
+});
+
+describe('JourneySearchPage autocomplete blur resolution', () => {
+  it('selects a stop on blur when the typed text exactly matches a suggestion (#16)', async () => {
+    await configureTestBed([tunisMarine], []);
+    const fixture = TestBed.createComponent(JourneySearchPage);
+    await typeAndBlurOrigin(fixture, 'Tunis Marine');
+
+    expect(fixture.componentInstance['selectedOrigin']()).toEqual(tunisMarine);
+  });
+
+  it('shows a hint instead of silently failing when typed text matches no stop', async () => {
+    await configureTestBed([tunisMarine], []);
+    const fixture = TestBed.createComponent(JourneySearchPage);
+    await typeAndBlurOrigin(fixture, 'not a real stop');
+
+    expect(fixture.componentInstance['selectedOrigin']()).toBeNull();
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Select a stop from the list');
   });
 });
