@@ -1,0 +1,16 @@
+.itinerary-list {
+  display: flex;
+  flex-direction: column;
+
+  &__status {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 0;
+    color: var(--mat-sys-on-surface-variant);
+
+    &--error {
+      color: var(--mat-sys-error);
+    }
+  }
+}

@@ -1,0 +1,16 @@
+@if (loading()) {
+  <div class="itinerary-list__status" role="status">
+    <mat-spinner diameter="32" />
+    <span>Searching journeys…</span>
+  </div>
+} @else if (error()) {
+  <p class="itinerary-list__status itinerary-list__status--error" role="alert">{{ error() }}</p>
+} @else if (itineraries().length > 0) {
+  <div class="itinerary-list">
+    @for (itinerary of itineraries(); track itinerary) {
+      <app-itinerary-card [itinerary]="itinerary" />
+    }
+  </div>
+} @else if (searched()) {
+  <p class="itinerary-list__status">No journeys found for this search.</p>
+}

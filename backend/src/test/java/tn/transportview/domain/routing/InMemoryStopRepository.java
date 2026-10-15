@@ -27,4 +27,12 @@ class InMemoryStopRepository implements StopRepositoryPort {
                 .filter(stop -> GeoDistance.metersBetween(origin, stop.coordinates()) <= radiusMeters)
                 .toList();
     }
+
+    @Override
+    public List<Stop> findByNameContaining(String query, int limit) {
+        return stops.values().stream()
+                .filter(stop -> stop.name().toLowerCase().contains(query.toLowerCase()))
+                .limit(limit)
+                .toList();
+    }
 }
