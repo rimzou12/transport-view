@@ -1,10 +1,8 @@
 package tn.transportview.infrastructure.persistence.entity;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.LocalTime;
 
@@ -12,18 +10,11 @@ import java.time.LocalTime;
 @Table(name = "stop_times")
 public class StopTimeEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(name = "trip_id", nullable = false)
-    private String tripId;
+    @EmbeddedId
+    private StopTimeId id;
 
     @Column(name = "stop_id", nullable = false)
     private String stopId;
-
-    @Column(name = "stop_sequence", nullable = false)
-    private int stopSequence;
 
     @Column(name = "arrival", nullable = false)
     private LocalTime arrival;
@@ -35,15 +26,14 @@ public class StopTimeEntity {
     }
 
     public StopTimeEntity(String tripId, String stopId, int stopSequence, LocalTime arrival, LocalTime departure) {
-        this.tripId = tripId;
+        this.id = new StopTimeId(tripId, stopSequence);
         this.stopId = stopId;
-        this.stopSequence = stopSequence;
         this.arrival = arrival;
         this.departure = departure;
     }
 
     public String getTripId() {
-        return tripId;
+        return id.getTripId();
     }
 
     public String getStopId() {
@@ -51,7 +41,7 @@ public class StopTimeEntity {
     }
 
     public int getStopSequence() {
-        return stopSequence;
+        return id.getStopSequence();
     }
 
     public LocalTime getArrival() {
