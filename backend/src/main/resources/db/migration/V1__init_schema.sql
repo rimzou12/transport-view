@@ -22,13 +22,12 @@ CREATE TABLE trips (
 );
 
 CREATE TABLE stop_times (
-    id BIGSERIAL PRIMARY KEY,
     trip_id VARCHAR(64) NOT NULL REFERENCES trips (id),
-    stop_id VARCHAR(64) NOT NULL REFERENCES stops (id),
     stop_sequence INT NOT NULL,
+    stop_id VARCHAR(64) NOT NULL REFERENCES stops (id),
     arrival TIME NOT NULL,
-    departure TIME NOT NULL
+    departure TIME NOT NULL,
+    PRIMARY KEY (trip_id, stop_sequence)
 );
 
 CREATE INDEX idx_stop_times_stop_id ON stop_times (stop_id);
-CREATE INDEX idx_stop_times_trip_id ON stop_times (trip_id);
