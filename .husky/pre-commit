@@ -1,0 +1,7 @@
+if git diff --cached --name-only | grep -q '^frontend/'; then
+  pnpm --dir frontend lint || exit 1
+fi
+
+if git diff --cached --name-only | grep -q '^backend/'; then
+  (cd backend && ./mvnw -q -o compile) || exit 1
+fi
