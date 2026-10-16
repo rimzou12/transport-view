@@ -181,3 +181,18 @@ describe('JourneySearchPage autocomplete blur resolution', () => {
     expect((fixture.nativeElement as HTMLElement).textContent).toContain('Select a stop from the list');
   });
 });
+
+describe('JourneySearchPage browse on focus', () => {
+  it('shows the full stop list on focus before the user types anything', async () => {
+    const { stopSearchService } = await configureTestBed([tunisMarine, marsaPlage], []);
+    const fixture = TestBed.createComponent(JourneySearchPage);
+    fixture.detectChanges();
+
+    const input = (fixture.nativeElement as HTMLElement).querySelector('input[placeholder="Search a stop"]') as HTMLInputElement;
+    input.dispatchEvent(new Event('focus'));
+    await fixture.whenStable();
+
+    expect(stopSearchService.search).toHaveBeenCalledWith('');
+    expect(fixture.componentInstance['originSuggestions']()).toEqual([tunisMarine, marsaPlage]);
+  });
+});

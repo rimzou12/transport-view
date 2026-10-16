@@ -45,9 +45,10 @@ class StopControllerIT {
     }
 
     @Test
-    void returnsEmptyForABlankQuery() throws Exception {
+    void browsesAllStopsForABlankQuery() throws Exception {
+        // Lets the frontend show the full list on focus, before the user types — see #16.
         mockMvc.perform(get("/api/v1/stops"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isEmpty());
+                .andExpect(jsonPath("$", org.hamcrest.Matchers.hasSize(8)));
     }
 }
