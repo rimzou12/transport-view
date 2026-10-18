@@ -4,13 +4,13 @@
 # private network address, which isn't reachable from the browser).
 
 databases:
-  # NOTE: "free" expires 30 days after creation (+ 14-day grace period), then the database and
-  # all its data are deleted — see DEPLOYMENT.md. Fine to start with for a first deploy/demo,
-  # but switch to a paid plan (e.g. "0.5c-1g", ~$6/mo) before relying on this for real.
+  # Paid, not "free": Render only allows one active free-tier database per workspace, and
+  # free also expires 30 days after creation (+ 14-day grace period) and is then deleted —
+  # see DEPLOYMENT.md. "0.5c-1g" is Render's cheapest paid tier (~$6/mo).
   - name: transport-view-db
     databaseName: transport_view
     user: transport_view
-    plan: free
+    plan: 0.5c-1g
     postgresMajorVersion: 17
 
 services:

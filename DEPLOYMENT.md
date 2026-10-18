@@ -25,10 +25,8 @@ This deploys three services from `render.yaml` (a Render [Blueprint](https://ren
 
 ## Cost and limits — read before relying on this
 
-Both the database and backend are on Render's **free** plan in `render.yaml`. That's fine to get a first deploy working at zero cost, but:
-
-- **The free database expires 30 days after creation** (+ a 14-day grace period), then Render deletes it — data and all. Not viable as a lasting deployment without upgrading. Switch the database's `plan` in `render.yaml` to a paid tier (e.g. `0.5c-1g`, ~$6/mo) before you depend on this.
-- **The free backend spins down after 15 minutes of inactivity.** The next request pays a ~30–60s cold-start cost waking it back up. Also capped at 750 instance-hours/month across your whole Render workspace. Switch `plan` to a paid tier (e.g. `starter`) if you want it always-responsive.
+- **The database is on a paid plan** (`0.5c-1g`, ~$6/mo) — not "free". Render only allows **one active free-tier database per workspace**, so if you already have one elsewhere (as happened on first deploy — see the PR that fixed this), the free plan fails outright with "cannot have more than one active free tier database". Separately, free databases also expire 30 days after creation (+ a 14-day grace period) and are then deleted — not viable for a lasting deployment either way.
+- **The backend is on Render's free plan**, which spins down after 15 minutes of inactivity (next request pays a ~30–60s cold-start cost waking it back up) and is capped at 750 instance-hours/month across your whole Render workspace. Switch `plan` to a paid tier (e.g. `starter`) if you want it always-responsive.
 - The frontend (static site) has no such limits — Render's static hosting is free regardless of tier.
 
 ## Redeploying
