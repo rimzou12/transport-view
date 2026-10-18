@@ -1,27 +1,27 @@
 name: frontend-ci
 
+# Deliberately no `paths:` filter: build-test-lint and e2e are required by branch protection
+# (see RELEASING.md). A path-filtered required check that never runs for a given PR leaves
+# GitHub waiting on it forever, permanently blocking merge — so it must run on every PR
+# regardless of which files changed.
 on:
   pull_request:
     branches: [develop, main]
-    paths:
-      - 'frontend/**'
-      - '.github/workflows/frontend-ci.yml'
   push:
     branches: [develop, main]
-    paths:
-      - 'frontend/**'
-
-defaults:
-  run:
-    working-directory: frontend
 
 jobs:
   build-test-lint:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
     steps:
       - uses: actions/checkout@v4
 
       - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: frontend/package.json
 
       - uses: actions/setup-node@v4
         with:
@@ -37,10 +37,60 @@ jobs:
   e2e:
     runs-on: ubuntu-latest
     needs: build-test-lint
+    services:
+      postgres:
+        image: postgis/postgis:17-3.5
+        env:
+          POSTGRES_DB: transport_view
+          POSTGRES_USER: transport_view
+          POSTGRES_PASSWORD: transport_view
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      ADMIN_GTFS_IMPORT_API_KEY: ci-e2e-key
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+
+      - name: Build backend jar
+        working-directory: backend
+        run: ./mvnw -B -DskipTests package
+
+      - name: Start backend against the CI Postgres service
+        working-directory: backend
+        env:
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_NAME: transport_view
+          DB_USER: transport_view
+          DB_PASSWORD: transport_view
+        run: |
+          nohup java -jar target/transport-view-backend-*.jar > backend.log 2>&1 &
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:8080/actuator/health && break
+            sleep 2
+          done
+          curl -sf http://localhost:8080/actuator/health || (cat backend.log && exit 1)
+
+      - name: Import the GTFS test fixture
+        run: |
+          curl -sf -X POST http://localhost:8080/api/v1/admin/gtfs/import \
+            -H "X-Admin-Api-Key: $ADMIN_GTFS_IMPORT_API_KEY" \
+            -F "file=@backend/src/test/resources/gtfs/transtu-sample.zip"
+
       - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: frontend/package.json
 
       - uses: actions/setup-node@v4
         with:
@@ -48,6 +98,14 @@ jobs:
           cache: pnpm
           cache-dependency-path: frontend/pnpm-lock.yaml
 
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm exec playwright install --with-deps
-      - run: pnpm test:e2e
+      - name: Install frontend deps
+        working-directory: frontend
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browsers
+        working-directory: frontend
+        run: pnpm exec playwright install --with-deps
+
+      - name: Run e2e tests (mocked + real-backend)
+        working-directory: frontend
+        run: pnpm test:e2e

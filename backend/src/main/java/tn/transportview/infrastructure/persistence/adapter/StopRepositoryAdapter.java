@@ -2,6 +2,7 @@ package tn.transportview.infrastructure.persistence.adapter;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Limit;
 import org.springframework.stereotype.Component;
 import tn.transportview.domain.model.Coordinates;
 import tn.transportview.domain.model.Stop;
@@ -26,6 +27,13 @@ public class StopRepositoryAdapter implements StopRepositoryPort {
     @Override
     public List<Stop> findNearby(Coordinates origin, double radiusMeters) {
         return stopJpaRepository.findWithinRadius(origin.latitude(), origin.longitude(), radiusMeters).stream()
+                .map(this::toDomain)
+                .toList();
+    }
+
+    @Override
+    public List<Stop> findByNameContaining(String query, int limit) {
+        return stopJpaRepository.findByNameContainingIgnoreCase(query, Limit.of(limit)).stream()
                 .map(this::toDomain)
                 .toList();
     }

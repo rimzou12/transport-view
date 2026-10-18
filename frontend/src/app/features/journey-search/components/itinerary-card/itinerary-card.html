@@ -1,0 +1,31 @@
+<mat-card class="itinerary-card" appearance="outlined">
+  <mat-card-header>
+    <mat-card-title>{{ itinerary().totalDurationSeconds | duration }}</mat-card-title>
+    <mat-card-subtitle>
+      @if (itinerary().transferCount === 0) {
+        Direct
+      } @else {
+        {{ itinerary().transferCount }} transfer{{ itinerary().transferCount > 1 ? 's' : '' }}
+      }
+    </mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    <ul class="itinerary-card__legs">
+      @for (leg of itinerary().legs; track leg.departure + leg.fromStopName) {
+        <li class="itinerary-card__leg">
+          <app-transport-mode-icon [mode]="leg.mode" />
+          <span class="itinerary-card__leg-route">
+            @if (leg.routeShortName) {
+              <mat-chip-set>
+                <mat-chip>{{ leg.routeShortName }}</mat-chip>
+              </mat-chip-set>
+            }
+            {{ leg.fromStopName }} → {{ leg.toStopName }}
+          </span>
+          <span class="itinerary-card__leg-times">{{ leg.departure }} – {{ leg.arrival }}</span>
+        </li>
+      }
+    </ul>
+  </mat-card-content>
+</mat-card>

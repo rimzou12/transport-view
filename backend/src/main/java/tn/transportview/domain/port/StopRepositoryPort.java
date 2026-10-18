@@ -10,4 +10,6 @@ public interface StopRepositoryPort {
     Optional<Stop> findById(String stopId);
 
     List<Stop> findNearby(Coordinates origin, double radiusMeters);
+
+    List<Stop> findByNameContaining(String query, int limit);
 }

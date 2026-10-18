@@ -126,7 +126,7 @@ Séparez rigoureusement les responsabilités des composants pour optimiser la r�
 - **Styles encapsulés (Scoped) :** Les styles doivent être encapsulés au niveau de leur composant (comportement par défaut) et rédigés dans un fichier `.scss` co-localisé.
 - **Tokens du Design System :** N'utilisez aucune valeur magique (couleurs en dur, pixels pour les marges). Utilisez exclusivement les variables CSS globales ou de thème fournies par le design system (variables `--ds-*`).
 - **Convention de nommage CSS :** Utilisez la convention BEM (`block__element--modifier`) même avec l'encapsulation, afin d'assurer la lisibilité et l'organisation sémantique du template HTML.
-  please use also primeng as css framework
+- **Bibliothèque de composants :** Utilisez **Angular Material** (`@angular/material` + `@angular/cdk`) comme design system de composants. (PrimeNG a été écarté : depuis la v22, PrimeTek l'a fermé en commercial — licence requise, sinon bandeau d'avertissement affiché en production.)
 
 ### 2.4. Ordre des Imports
 Respectez l'ordre suivant dans les fichiers TypeScript pour faciliter la relecture :
@@ -355,7 +355,7 @@ Une fonctionnalité n'est considérée comme achevée que lorsqu'elle dispose d'
 - **Framework :** **Playwright** (`playwright.config.ts`).
 - **Localisation des fichiers :** Dossier `/e2e` à la racine du projet.
 - **URL de Base :** `http://localhost:4200` (port de développement par défaut d'Angular).
-- **Navigateurs de validation :** Chromium, Firefox, WebKit (Safari).
+- **Navigateurs de validation :** Chromium, WebKit (Safari). (Firefox exclu : WebGL non supporté en mode headless — bloquant depuis que l'app par défaut rend une carte MapLibre GL, voir #12.)
 - **Cycle d'exécution :** Playwright démarre et éteint automatiquement le serveur de développement local (`ng serve`) à chaque passage de test complet.
 - **Commandes d'exécution :**
   - Lancement des tests E2E : `pnpm test:e2e`

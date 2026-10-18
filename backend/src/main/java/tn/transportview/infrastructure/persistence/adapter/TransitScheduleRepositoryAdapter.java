@@ -31,14 +31,14 @@ public class TransitScheduleRepositoryAdapter implements TransitScheduleReposito
 
     @Override
     public List<StopTime> findStopTimesForStop(String stopId) {
-        return stopTimeJpaRepository.findByStopIdOrderByStopSequence(stopId).stream()
+        return stopTimeJpaRepository.findByStopIdOrderByIdStopSequence(stopId).stream()
                 .map(this::toDomain)
                 .toList();
     }
 
     @Override
     public List<StopTime> findStopTimesForTrip(String tripId) {
-        return stopTimeJpaRepository.findByTripIdOrderByStopSequence(tripId).stream()
+        return stopTimeJpaRepository.findByIdTripIdOrderByIdStopSequence(tripId).stream()
                 .map(this::toDomain)
                 .toList();
     }

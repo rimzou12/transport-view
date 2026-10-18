@@ -15,9 +15,13 @@ export default defineConfig({
     reuseExistingServer: !process.env['CI'],
     timeout: 120_000,
   },
+  // Firefox is deliberately excluded: headless Firefox doesn't support WebGL
+  // (https://bugzilla.mozilla.org/show_bug.cgi?id=1375585), and the app's default route
+  // renders a MapLibre GL map, which requires it — every e2e test hangs/times out under
+  // headless Firefox for this reason, not a bug in the app. Chromium and WebKit both support
+  // headless WebGL and are sufficient cross-engine coverage.
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-    { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
     { name: 'webkit', use: { ...devices['Desktop Safari'] } },
   ],
 });
