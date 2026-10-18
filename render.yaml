@@ -1,17 +1,12 @@
-# Render Blueprint — see DEPLOYMENT.md for the one-time setup steps and the manual
-# URL-verification step this file can't fully automate (Render's blueprint spec has no way to
-# reference another service's *public* URL from within a service's own env vars — only its
-# private network address, which isn't reachable from the browser).
-
-databases:
-  # Paid, not "free": Render only allows one active free-tier database per workspace, and
-  # free also expires 30 days after creation (+ 14-day grace period) and is then deleted —
-  # see DEPLOYMENT.md. "0.5c-1g" is Render's cheapest paid tier (~$6/mo).
-  - name: transport-view-db
-    databaseName: transport_view
-    user: transport_view
-    plan: 0.5c-1g
-    postgresMajorVersion: 17
+# Render Blueprint — see DEPLOYMENT.md for the one-time setup steps, including the DB_* secrets
+# below (sync: false — Render prompts for these in its dashboard during/after Apply, nothing
+# sensitive is stored in this file) and the manual URL-verification step this file can't fully
+# automate (Render's blueprint spec has no way to reference another service's *public* URL from
+# within a service's own env vars — only its private network address, unreachable from the
+# browser).
+#
+# No `databases:` block here on purpose: this uses an external Postgres (Neon) rather than a
+# Render-managed one — see DEPLOYMENT.md for why.
 
 services:
   - name: transport-view-backend
@@ -27,26 +22,24 @@ services:
     branch: main
     healthCheckPath: /actuator/health
     envVars:
+      # Secrets — not stored here. Render will prompt for these during Apply, or fill them in
+      # afterward via dashboard → this service → Environment. Source them from your Postgres
+      # provider's own connection details (e.g. Neon project → Connection string) — never paste
+      # them into this file or into chat/commits.
       - key: DB_HOST
-        fromDatabase:
-          name: transport-view-db
-          property: host
-      - key: DB_PORT
-        fromDatabase:
-          name: transport-view-db
-          property: port
+        sync: false
       - key: DB_NAME
-        fromDatabase:
-          name: transport-view-db
-          property: database
+        sync: false
       - key: DB_USER
-        fromDatabase:
-          name: transport-view-db
-          property: user
+        sync: false
       - key: DB_PASSWORD
-        fromDatabase:
-          name: transport-view-db
-          property: password
+        sync: false
+      - key: DB_PORT
+        value: "5432"
+      # Neon (and most hosted Postgres) requires SSL; our local/CI Postgres doesn't have it
+      # configured, so this isn't the backend's default — set explicitly here instead.
+      - key: DB_SSL_MODE
+        value: require
       - key: ADMIN_GTFS_IMPORT_API_KEY
         generateValue: true
       # Placeholder — replace with the frontend's actual onrender.com URL once known
