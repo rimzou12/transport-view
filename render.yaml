@@ -1,0 +1,72 @@
+# Render Blueprint — see DEPLOYMENT.md for the one-time setup steps and the manual
+# URL-verification step this file can't fully automate (Render's blueprint spec has no way to
+# reference another service's *public* URL from within a service's own env vars — only its
+# private network address, which isn't reachable from the browser).
+
+databases:
+  # NOTE: "free" expires 30 days after creation (+ 14-day grace period), then the database and
+  # all its data are deleted — see DEPLOYMENT.md. Fine to start with for a first deploy/demo,
+  # but switch to a paid plan (e.g. "0.5c-1g", ~$6/mo) before relying on this for real.
+  - name: transport-view-db
+    databaseName: transport_view
+    user: transport_view
+    plan: free
+    postgresMajorVersion: 17
+
+services:
+  - name: transport-view-backend
+    type: web
+    runtime: docker
+    rootDir: backend
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    # "free" spins down after 15 min of inactivity (next request pays a ~30-60s cold-start cost
+    # waking it back up) and caps at 750 instance-hours/month across the whole workspace — fine
+    # for a demo, not for something you want always-responsive. See DEPLOYMENT.md.
+    plan: free
+    branch: main
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: DB_HOST
+        fromDatabase:
+          name: transport-view-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: transport-view-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: transport-view-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: transport-view-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: transport-view-db
+          property: password
+      - key: ADMIN_GTFS_IMPORT_API_KEY
+        generateValue: true
+      # Placeholder — replace with the frontend's actual onrender.com URL once known
+      # (see DEPLOYMENT.md step 4).
+      - key: CORS_ALLOWED_ORIGINS
+        value: https://transport-view-frontend.onrender.com
+
+  - name: transport-view-frontend
+    type: web
+    runtime: static
+    rootDir: frontend
+    buildCommand: pnpm install --frozen-lockfile && pnpm run build:render
+    staticPublishPath: ./dist/frontend/browser
+    branch: main
+    envVars:
+      # Placeholder — replace with the backend's actual onrender.com URL once known
+      # (see DEPLOYMENT.md step 4).
+      - key: API_BASE_URL
+        value: https://transport-view-backend.onrender.com/api/v1
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
