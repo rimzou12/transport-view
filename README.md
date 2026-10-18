@@ -69,3 +69,7 @@ pnpm start
 | Integration | `./mvnw verify` (Testcontainers: real Postgres+PostGIS) | `pnpm test` (TestBed component tests) |
 | E2E | — | `pnpm test:e2e` (Playwright, + axe-core a11y checks) |
 | Coverage | — | `pnpm test:coverage` (90% threshold) |
+
+## Deployment
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for deploying to Render (`render.yaml` Blueprint: database + backend + frontend).
