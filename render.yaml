@@ -13,8 +13,12 @@ services:
     type: web
     runtime: docker
     rootDir: backend
-    dockerfilePath: ./backend/Dockerfile
-    dockerContext: ./backend
+    # Relative to rootDir (backend/), not the repo root — despite what Render's own Blueprint
+    # docs say ("dockerfilePath/dockerContext are always repo-root-relative"), in practice
+    # rootDir does affect these too. Using repo-root-style paths here doubles up to
+    # backend/backend/Dockerfile, which doesn't exist, and the deploy fails on checkout.
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
     # "free" spins down after 15 min of inactivity (next request pays a ~30-60s cold-start cost
     # waking it back up) and caps at 750 instance-hours/month across the whole workspace — fine
     # for a demo, not for something you want always-responsive. See DEPLOYMENT.md.
